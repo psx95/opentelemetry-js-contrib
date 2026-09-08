@@ -303,4 +303,25 @@ describe('TelemetryHandler', () => {
     assert.strictEqual(toolSpan.name, 'execute_tool calculator');
     assert.strictEqual(toolSpan.kind, SpanKind.INTERNAL);
   });
+
+  it('should delegate wrapAsyncStream to wrapAsyncStream function', async () => {
+    const tracer = ctx.tracerProvider.getTracer('test-tracer');
+    const handler = new TelemetryHandler({ tracer });
+    const invocation = handler.startInference({ providerName: 'openai' });
+
+    async function* gen() {
+      yield 'chunk1';
+      yield 'chunk2';
+    }
+
+    const wrapped = handler.wrapAsyncStream(gen(), invocation);
+    const chunks: string[] = [];
+    for await (const c of wrapped) {
+      chunks.push(c);
+    }
+
+    assert.deepStrictEqual(chunks, ['chunk1', 'chunk2']);
+    const spans = ctx.memoryExporter.getFinishedSpans();
+    assert.strictEqual(spans.length, 1);
+  });
 });
