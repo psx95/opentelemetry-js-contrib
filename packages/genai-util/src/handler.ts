@@ -20,6 +20,9 @@ import {
   getContentCaptureMode,
   parseContentCaptureMode,
 } from './environment-variables';
+import { EmbeddingInvocation } from './invocations/embedding';
+import { InferenceInvocation } from './invocations/inference';
+import { ToolInvocation } from './invocations/tool';
 import {
   createDurationHistogram,
   createTimePerOutputChunkHistogram,
@@ -34,8 +37,11 @@ import {
 } from './semconv';
 import type {
   ContentCaptureMode,
+  EmbeddingInvocationOptions,
   GenAIInstrumentationConfig,
+  InferenceInvocationOptions,
   TokenUsage,
+  ToolInvocationOptions,
 } from './types';
 
 /**
@@ -156,6 +162,37 @@ export class TelemetryHandler {
    */
   public shouldCaptureContent(): boolean {
     return this._contentCaptureMode !== 'none';
+  }
+
+  /**
+   * Start an LLM / GenAI inference invocation.
+   *
+   * The returned invocation owns its span: complete it with `stop()` or `fail()`.
+   */
+  public startInference(
+    options: InferenceInvocationOptions
+  ): InferenceInvocation {
+    return new InferenceInvocation(this, options);
+  }
+
+  /**
+   * Start an Embedding invocation.
+   *
+   * The returned invocation owns its span: complete it with `stop()` or `fail()`.
+   */
+  public startEmbedding(
+    options: EmbeddingInvocationOptions
+  ): EmbeddingInvocation {
+    return new EmbeddingInvocation(this, options);
+  }
+
+  /**
+   * Start a Tool execution invocation.
+   *
+   * The returned invocation owns its span: complete it with `stop()` or `fail()`.
+   */
+  public startTool(options: ToolInvocationOptions): ToolInvocation {
+    return new ToolInvocation(this, options);
   }
 
   /**
