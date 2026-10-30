@@ -34,9 +34,15 @@ sdk.start();
 process.once('beforeExit', async () => { await sdk.shutdown(); });
 ```
 
+## Configuration
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `captureMessageContent` | `'none' \| 'span_only' \| boolean` | `'none'` | Controls whether message contents (prompts, completions, system instructions, tool call arguments, and tool outputs) are recorded on spans (`gen_ai.input.messages`, `gen_ai.output.messages`, `gen_ai.system_instructions`). Passing `true` is equivalent to `'span_only'`, and `false` is equivalent to `'none'`. When omitted, falls back to the `OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT` environment variable (`none` or `span_only`). |
+
 ## Semantic Conventions
 
-This package implements Semantic Convention [Version 1.36.0](https://github.com/open-telemetry/semantic-conventions/blob/v1.36.0/docs/README.md) for Chat Completions, and Semantic Convention [Version 1.38.0](https://github.com/open-telemetry/semantic-conventions/blob/v1.38.0/docs/README.md) for Responses API.
+This package leverages `@opentelemetry/genai-util` to emit spans and metrics adhering to the [OpenTelemetry GenAI Semantic Conventions](https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/README.md) (`https://opentelemetry.io/schemas/gen-ai-dev/1.42.0-dev`) across Chat Completions (`chat.completions.create`), Embeddings (`embeddings.create`), and Responses (`responses.create`), including streaming Time To First Chunk (TTFT) and Time Per Output Chunk metrics.
 
 ## Useful links
 
